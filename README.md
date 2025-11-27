@@ -95,11 +95,11 @@ where $B_z(a,b) = \int_0^z t^{a-1}(1-t)^{b-1}dt$.
 
 **PDF:**
 
-$$f_{\text{GKw}}(x; \alpha, \beta, \gamma, \delta, \lambda) = \frac{\lambda \alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left[1-(1-x^\alpha)^\beta\right]^{\gamma\lambda-1} \left\{1-\left[1-(1-x^\alpha)^\beta\right]^\lambda\right\}^{\delta-1}$$
+$$f_{\text{GKw}}(x; \alpha, \beta, \gamma, \delta, \lambda) = \frac{\lambda \alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left(1-(1-x^\alpha)^\beta\right)^{\gamma\lambda-1} \left(1-\left(1-(1-x^\alpha)^\beta\right)^\lambda\right)^{\delta-1}$$
 
 **CDF:**
 
-$$F_{\text{GKw}}(x; \alpha, \beta, \gamma, \delta, \lambda) = I_{[1-(1-x^\alpha)^\beta]^\lambda}(\gamma, \delta)$$
+$$F_{\text{GKw}}(x; \alpha, \beta, \gamma, \delta, \lambda) = I_{\left(1-(1-x^\alpha)^\beta\right)^\lambda}(\gamma, \delta)$$
 
 **Quantile:** Numerical inversion of the CDF via root-finding
 algorithms.
@@ -115,13 +115,13 @@ Numerical integration or simulation methods required.
 
 **PDF:**
 
-$$f_{\text{BKw}}(x; \alpha, \beta, \gamma, \delta) = \frac{\alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left[1-(1-x^\alpha)^\beta\right]^{\gamma-1} \left\{1-\left[1-(1-x^\alpha)^\beta\right]\right\}^{\delta-1}$$
+$$f_{\text{BKw}}(x; \alpha, \beta, \gamma, \delta) = \frac{\alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left(1-(1-x^\alpha)^\beta\right)^{\gamma-1} \left(1-\left(1-(1-x^\alpha)^\beta\right)\right)^{\delta-1}$$
 
 Simplifying:
 
-$$f_{\text{BKw}}(x; \alpha, \beta, \gamma, \delta) = \frac{\alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left[1-(1-x^\alpha)^\beta\right]^{\gamma-1} (1-x^\alpha)^{\beta(\delta-1)}$$
+$$f_{\text{BKw}}(x; \alpha, \beta, \gamma, \delta) = \frac{\alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left(1-(1-x^\alpha)^\beta\right)^{\gamma-1} (1-x^\alpha)^{\beta(\delta-1)}$$
 
-$$= \frac{\alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta\delta-1} \left[1-(1-x^\alpha)^\beta\right]^{\gamma-1}$$
+$$= \frac{\alpha \beta}{B(\gamma, \delta)} x^{\alpha-1} (1-x^\alpha)^{\beta\delta-1} \left(1-(1-x^\alpha)^\beta\right)^{\gamma-1}$$
 
 **CDF:**
 
@@ -133,7 +133,7 @@ $$u = I_y(\gamma, \delta) \quad \text{where} \quad y = 1-(1-x^\alpha)^\beta$$
 
 Solving for $x$:
 
-$$x = \left[1-\left(1-I_u^{-1}(\gamma, \delta)\right)^{1/\beta}\right]^{1/\alpha}$$
+$$x = \left(1-\left(1-I_u^{-1}(\gamma, \delta)\right)^{1/\beta}\right)^{1/\alpha}$$
 
 ------------------------------------------------------------------------
 
@@ -143,15 +143,15 @@ $$x = \left[1-\left(1-I_u^{-1}(\gamma, \delta)\right)^{1/\beta}\right]^{1/\alpha
 
 **PDF:**
 
-$$f_{\text{KKw}}(x; \alpha, \beta, \delta, \lambda) = \alpha \beta \delta \lambda \, x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left[1-(1-x^\alpha)^\beta \right]^{\lambda-1} \left\{1-\left[1-(1-x^\alpha)^\beta \right]^\lambda\right\}^{\delta-1}$$
+$$f_{\text{KKw}}(x; \alpha, \beta, \delta, \lambda) = \alpha \beta \delta \lambda \, x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left(1-(1-x^\alpha)^\beta\right)^{\lambda-1} \left(1-\left(1-(1-x^\alpha)^\beta\right)^\lambda\right)^{\delta-1}$$
 
 **CDF:**
 
-$$F_{\text{KKw}}(x; \alpha, \beta, \delta, \lambda) = 1 - \left\{1-\left[1-(1-x^\alpha)^\beta\right]^\lambda\right\}^\delta$$
+$$F_{\text{KKw}}(x; \alpha, \beta, \delta, \lambda) = 1 - \left(1-\left(1-(1-x^\alpha)^\beta\right)^\lambda\right)^\delta$$
 
 **Quantile (closed-form):**
 
-$$Q_{\text{KKw}}(p; \alpha, \beta, \delta, \lambda) = \left[1 - \left(1 - \left[1-(1-p)^{1/\delta}\right]^{1/\lambda}\right)^{1/\beta}\right]^{1/\alpha}$$
+$$Q_{\text{KKw}}(p; \alpha, \beta, \delta, \lambda) = \left(1 - \left(1 - \left(1-(1-p)^{1/\delta}\right)^{1/\lambda}\right)^{1/\beta}\right)^{1/\alpha}$$
 
 **Moments:** Analytical expressions not available in closed form.
 
@@ -163,19 +163,19 @@ $$Q_{\text{KKw}}(p; \alpha, \beta, \delta, \lambda) = \left[1 - \left(1 - \left[
 
 **PDF:**
 
-$$f_{\text{EKw}}(x; \alpha, \beta, \lambda) = \lambda \alpha \beta \, x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left[1-(1-x^\alpha)^\beta \right]^{\lambda-1}$$
+$$f_{\text{EKw}}(x; \alpha, \beta, \lambda) = \lambda \alpha \beta \, x^{\alpha-1} (1-x^\alpha)^{\beta-1} \left(1-(1-x^\alpha)^\beta\right)^{\lambda-1}$$
 
 **CDF:**
 
-$$F_{\text{EKw}}(x; \alpha, \beta, \lambda) = \left[1-(1-x^\alpha)^\beta \right]^\lambda$$
+$$F_{\text{EKw}}(x; \alpha, \beta, \lambda) = \left(1-(1-x^\alpha)^\beta\right)^\lambda$$
 
 **Quantile (closed-form):**
 
-$$Q_{\text{EKw}}(p; \alpha, \beta, \lambda) = \left[1-\left(1-p^{1/\lambda}\right)^{1/\beta}\right]^{1/\alpha}$$
+$$Q_{\text{EKw}}(p; \alpha, \beta, \lambda) = \left(1-\left(1-p^{1/\lambda}\right)^{1/\beta}\right)^{1/\alpha}$$
 
 **Moments:**
 
-$$\mathbb{E}(X^r) = \lambda \sum_{k=0}^{\infty} \frac{(-1)^k \binom{\lambda}{k+1}}{k+1} \cdot \beta B\left(1 + \frac{r}{\alpha}, (k+1)\beta\right)$$
+$$\mathbb{E}(X^r) = \lambda \sum_{k=0}^{\infty} \frac{(-1)^k \binom{\lambda}{k+1}}{k+1} \cdot \beta \, B\left(1 + \frac{r}{\alpha}, (k+1)\beta\right)$$
 
 where the binomial coefficient is generalized:
 $\binom{\lambda}{k+1} = \frac{\lambda(\lambda-1)\cdots(\lambda-k)}{(k+1)!}$.
@@ -196,7 +196,7 @@ $$F_{\text{MC}}(x; \gamma, \delta, \lambda) = I_{x^\lambda}(\gamma, \delta)$$
 
 **Quantile:**
 
-$$Q_{\text{MC}}(p; \gamma, \delta, \lambda) = \left[I_p^{-1}(\gamma, \delta)\right]^{1/\lambda}$$
+$$Q_{\text{MC}}(p; \gamma, \delta, \lambda) = \left(I_p^{-1}(\gamma, \delta)\right)^{1/\lambda}$$
 
 where $I_p^{-1}(\gamma, \delta)$ is the inverse regularized incomplete
 beta function (quantile function of the Beta distribution).
@@ -224,11 +224,11 @@ $$F_{\text{Kw}}(x; \alpha, \beta) = 1 - (1-x^\alpha)^\beta$$
 
 **Quantile (closed-form):**
 
-$$Q_{\text{Kw}}(p; \alpha, \beta) = \left[1-(1-p)^{1/\beta} \right]^{1/\alpha}$$
+$$Q_{\text{Kw}}(p; \alpha, \beta) = \left(1-(1-p)^{1/\beta}\right)^{1/\alpha}$$
 
 **Moments:**
 
-$$\mathbb{E}(X^r) = \beta B\left(1 + \frac{r}{\alpha}, \beta\right) = \frac{\beta \, \Gamma(1+r/\alpha) \, \Gamma(\beta)}{\Gamma(1+r/\alpha+\beta)}$$
+$$\mathbb{E}(X^r) = \beta \, B\left(1 + \frac{r}{\alpha}, \beta\right) = \frac{\beta \, \Gamma(1+r/\alpha) \, \Gamma(\beta)}{\Gamma(1+r/\alpha+\beta)}$$
 
 which is valid for $r/\alpha > -1$.
 
@@ -238,7 +238,7 @@ $$\mathbb{E}(X) = \frac{\beta \, \Gamma(1+1/\alpha) \, \Gamma(\beta)}{\Gamma(1+1
 
 $$\mathbb{E}(X^2) = \frac{\beta \, \Gamma(1+2/\alpha) \, \Gamma(\beta)}{\Gamma(1+2/\alpha+\beta)}$$
 
-$$\text{Var}(X) = \mathbb{E}(X^2) - [\mathbb{E}(X)]^2$$
+$$\text{Var}(X) = \mathbb{E}(X^2) - \left(\mathbb{E}(X)\right)^2$$
 
 ------------------------------------------------------------------------
 
@@ -261,7 +261,7 @@ $$Q_{\text{Beta}}(p; \gamma, \delta) = I_p^{-1}(\gamma, \delta)$$
 
 **Moments:**
 
-$$\mathbb{E}(X^r) = \frac{B(\gamma+r, \delta)}{B(\gamma, \delta)} = \frac{\Gamma(\gamma+r) \, \Gamma(\delta) \, \Gamma(\gamma+\delta)}{\Gamma(\gamma) \, \Gamma(\gamma+\delta+r) \, \Gamma(\delta)}$$
+$$\mathbb{E}(X^r) = \frac{B(\gamma+r, \delta)}{B(\gamma, \delta)} = \frac{\Gamma(\gamma+r) \, \Gamma(\gamma+\delta)}{\Gamma(\gamma) \, \Gamma(\gamma+\delta+r)}$$
 
 $$\mathbb{E}(X) = \frac{\gamma}{\gamma+\delta}$$
 
@@ -744,7 +744,7 @@ citation("gkwdist")
 ``` bibtex
 @Manual{gkwdist2025,
   title  = {gkwdist: Generalized Kumaraswamy Distribution Family},
-  author = {J. E. Lopes},
+  author = {José Evandeilton Lopes},
   year   = {2025},
   note   = {R package},
   url    = {https://github.com/evandeilton/gkwdist}
@@ -753,7 +753,7 @@ citation("gkwdist")
 
 ## Author
 
-**J. E. Lopes**  
+**José Evandeilton Lopes**  
 LEG - Laboratory of Statistics and Geoinformation  
 PPGMNE - Graduate Program in Numerical Methods in Engineering  
 Federal University of Paraná (UFPR), Brazil  
