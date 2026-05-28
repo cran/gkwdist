@@ -1,6 +1,6 @@
 Package: gkwdist
 Title: Generalized Kumaraswamy Distribution Family
-Version: 1.1.3
+Version: 1.1.4
 Authors@R: c(person(given = "José Evandeilton",
                     family = "Lopes",
                     role = c("aut", "cre"),
@@ -31,9 +31,9 @@ Suggests: knitr, rmarkdown, testthat (>= 3.0.0)
 Config/testthat/edition: 3
 NeedsCompilation: yes
 VignetteBuilder: knitr
-Packaged: 2026-05-20 23:15:48 UTC; jlopes
+Packaged: 2026-05-27 19:29:33 UTC; jlopes
 Author: José Evandeilton Lopes [aut, cre] (ORCID:
     <https://orcid.org/0009-0007-5887-4084>)
 Maintainer: José Evandeilton Lopes <evandeilton@gmail.com>
 Repository: CRAN
-Date/Publication: 2026-05-21 05:10:08 UTC
+Date/Publication: 2026-05-28 05:10:51 UTC

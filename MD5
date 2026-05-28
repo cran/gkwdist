@@ -1,7 +1,7 @@
-830401b5c0480cde323558512bf2ff89 *DESCRIPTION
+2aff2a58e50925e243a65c391a84514b *DESCRIPTION
 70466d0c10be84555186df146e581750 *LICENSE
 1c4227de97bb210bb4e83cc807b9c2ed *NAMESPACE
-818aa93bd33b45486d2516e9a38bc671 *NEWS.md
+7a1db74dc8e4da7fb755a098889db371 *NEWS.md
 efc1becab57f21d011f7d92414f5ebb7 *R/RcppExports.R
 1837359a83e66c32d8aa92873077bd1f *R/beta.R
 00d1fb4ab6c9945f3c4584424956a3cb *R/bkw.R
@@ -18,10 +18,10 @@ f00fdb1b8093928736d293f03e870594 *R/bpmc.R
 c371c8950736325023e03df137af2833 *inst/CITATION
 6c600d4acb1b5cc6decec1430fb9ad11 *inst/doc/into-gkwdist.R
 4866b367b33b7d806f5f1501718f2dbc *inst/doc/into-gkwdist.Rmd
-26ae9aefc40011a8ea3091589cd2beaf *inst/doc/into-gkwdist.html
+b1e38ce6dd0463bdb4661405273c05fe *inst/doc/into-gkwdist.html
 5e270ae6034b339c2a13d20a5f7d2dec *inst/doc/theory-gkwdist.R
 8f5e6d2c7f96247759de7efa663ce77e *inst/doc/theory-gkwdist.Rmd
-a50927c3ffd20e5cdad3e9f3c01689b2 *inst/doc/theory-gkwdist.html
+912ceab47bbf81a8af2b25855494d9fa *inst/doc/theory-gkwdist.html
 3cf6a9ff44e2d217eaff1103f10eb49e *inst/paper/apa.csl
 073533bb6887ba6dd6ea1ab34cc678b8 *inst/paper/paper.bib
 84d5dea7995c269297229e09bc73356f *inst/paper/paper.log
@@ -98,7 +98,7 @@ daac8967a9e6098f6e94527da9450cca *tests/testthat/test-derivatives-validation.R
 862dc4bd308e0998145ba96e60d0e2ae *tests/testthat/test-gradient-functions.R
 843a0d5430ffb63033b146bbe0d89d7c *tests/testthat/test-hessian-functions.R
 70630aede129b0415d072dcc0e92f666 *tests/testthat/test-loglikelihood-functions.R
-2d2871c0143734c8c19265f175422920 *tests/testthat/test-mle-performance.R
+f788291a02c3bef411a8d6baab7c414f *tests/testthat/test-mle-performance.R
 8422d4132d4dd04989f80966cb970b49 *tests/testthat/test-pdf-functions.R
 01d16aa483732f178af15f5a1718cb4c *tests/testthat/test-quantile-functions.R
 ab46406f49a606b4a19101577ced2568 *tests/testthat/test-random-generation.R
