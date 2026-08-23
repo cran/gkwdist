@@ -12,7 +12,7 @@
 
 <meta name="author" content="José Evandeilton Lopes" />
 
-<meta name="date" content="2026-05-27" />
+<meta name="date" content="2026-08-22" />
 
 <title>On the Statistical Properties and Computational Inference of the Generalized Kumaraswamy Distribution Family</title>
 
@@ -241,22 +241,24 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 Computational Inference of the Generalized Kumaraswamy Distribution
 Family</h1>
 <h4 class="author">José Evandeilton Lopes</h4>
-<h4 class="date">2026-05-27</h4>
+<h4 class="date">2026-08-22</h4>
 
 
 
 <p><strong>Abstract.</strong> We present a comprehensive mathematical
 treatment of the Generalized Kumaraswamy (GKw) distribution, a
 five-parameter family for modeling continuous random variables on the
-unit interval by Carrasco et all (2010). We establish the hierarchical
-structure connecting GKw to several nested sub-models including the Beta
-and Kumaraswamy distributions, derive closed-form expressions for the
-log-likelihood function, score vector, and observed information matrix,
-and prove asymptotic properties of maximum likelihood estimators. All
-analytical derivatives are derived from the compositional structure of
-the distribution and written in a form suitable for stable numerical
-implementation. The theoretical results provide the foundation for
-efficient numerical routines in the R package <code>gkwdist</code>.</p>
+unit interval introduced by Carrasco et al. (2010). We establish the
+hierarchical structure connecting GKw to several nested submodels,
+including the package-parameterized Beta subfamily and the Kumaraswamy
+distribution, derive the log-likelihood, score vector, and observed
+information matrix, and state likelihood asymptotics under explicit
+regularity and identifiability conditions. Particular attention is given
+to non-identifiable parameter manifolds, boundary cases, and numerically
+stable evaluation of the cascade transformations. The analytical
+derivatives are written in a form suitable for direct implementation and
+validation. These results provide the mathematical foundation for the
+numerical routines in the R package <code>gkwdist</code>.</p>
 <p><strong>Keywords:</strong> Bounded distributions, Beta distribution,
 Kumaraswamy distribution, Maximum likelihood estimation, Fisher
 information, Numerical stability</p>
@@ -280,12 +282,17 @@ efficiency while maintaining comparable flexibility to the Beta
 distribution. Jones (2009) demonstrated that the Kumaraswamy
 distribution exhibits similar shape characteristics to the Beta family
 while offering superior computational advantages.</p>
-<p>Building upon these foundations, Cordeiro and de Castro (2011)
-developed the Generalized Kumaraswamy (GKw) distribution, a
-five-parameter extension incorporating both Beta and Kumaraswamy
-structures through nested transformations. This distribution encompasses
-a rich hierarchy of submodels, providing substantial flexibility for
-modeling diverse patterns in bounded data.</p>
+<p>Building upon these foundations, Carrasco, Ferrari and Cordeiro
+(2010) introduced the five-parameter Generalized Kumaraswamy (GKw)
+distribution by combining the Kumaraswamy CDF with a generalized-beta
+generator. Cordeiro and de Castro (2011) developed the related
+Kumaraswamy-generated (Kw-G) family, which is conceptually connected but
+is not the five-parameter GKw model studied here. The GKw distribution
+encompasses a rich hierarchy of submodels and provides substantial
+flexibility for modeling diverse patterns in bounded data.
+Identifiability issues for this class were revisited explicitly by
+Carrasco and Cordeiro (2017), so likelihood asymptotics must be stated
+conditionally on a regular identifiable parameter region.</p>
 <p>Despite its theoretical appeal, a fully explicit and internally
 consistent analytical treatment of the GKw family—particularly for
 likelihood-based inference—has remained incomplete in the literature.
@@ -352,7 +359,7 @@ z(x; \alpha, \beta, \lambda) &amp;= 1 - w(x;\alpha,\beta)^\lambda
 \frac{\partial w}{\partial x} &amp;=
   \alpha\beta x^{\alpha-1}(1-x^\alpha)^{\beta-1}, \tag{1.8}\\[3pt]
 \frac{\partial z}{\partial x} &amp;=
-  \alpha\beta\lambda\,x^{\alpha-1}
+  -\alpha\beta\lambda\,x^{\alpha-1}
   (1-x^\alpha)^{\beta-1}\bigl[1-(1-x^\alpha)^\beta\bigr]^{\lambda-1}.
 \tag{1.9}
 \end{align}
@@ -364,8 +371,8 @@ context.</p>
 <hr />
 </div>
 </div>
-<div id="the-generalized-kumaraswamy-distribution-and-its-subfamily" class="section level2">
-<h2>2. The Generalized Kumaraswamy Distribution and Its Subfamily</h2>
+<div id="the-generalized-kumaraswamy-distribution-and-its-subfamilies" class="section level2">
+<h2>2. The Generalized Kumaraswamy Distribution and Its Subfamilies</h2>
 <div id="definition-and-fundamental-properties" class="section level3">
 <h3>2.1 Definition and Fundamental Properties</h3>
 <p>We start from the five-parameter Generalized Kumaraswamy family.</p>
@@ -388,21 +395,60 @@ f(x; \boldsymbol{\theta}) =
 v(x) = 1-x^\alpha,\qquad
 w(x) = 1-(1-x^\alpha)^\beta,\qquad
 z(x) = 1-w(x)^\lambda,
-\]</span> and the parameter space is <span class="math display">\[
-\Theta = \Bigl\{(\alpha,\beta,\gamma,\delta,\lambda)^\top :
+\]</span> and the extended parameter space used by the package is <span class="math display">\[
+\overline{\Theta} = \Bigl\{(\alpha,\beta,\gamma,\delta,\lambda)^\top :
 \alpha,\beta,\gamma,\lambda&gt;0,\ \delta\ge 0\Bigr\}. \tag{2.2}
-\]</span></p>
-<p>Note that <span class="math inline">\(B(\gamma,\delta+1)\)</span> is
-well-defined for all <span class="math inline">\(\gamma&gt;0\)</span>
-and <span class="math inline">\(\delta&gt;-1\)</span>; we restrict to
-<span class="math inline">\(\delta\ge 0\)</span> for convenience and
-consistency with the literature.</p>
+\]</span> Its interior with respect to the five-dimensional
+parameterization is <span class="math display">\[
+\Theta^\circ=\{\boldsymbol\theta:\alpha,\beta,\gamma,\delta,\lambda&gt;0\}.
+\]</span> Although <span class="math inline">\(B(\gamma,\delta+1)\)</span> is well-defined for
+<span class="math inline">\(\delta&gt;-1\)</span>, the package and the
+submodel hierarchy considered here use <span class="math inline">\(\delta\ge0\)</span>. Boundary points and certain
+interior manifolds require special care because the full five-parameter
+representation is not everywhere identifiable.</p>
+<p><strong>Proposition 2.1 (Exact non-identifiability
+manifolds).</strong><br />
+For the full five-parameter GKw representation, at least the following
+parameter manifolds are non-identifiable:</p>
+<ol style="list-style-type: decimal">
+<li>If <span class="math inline">\(\delta=0\)</span>, then the density
+depends on <span class="math inline">\((\gamma,\lambda)\)</span> only
+through <span class="math inline">\(\tau=\gamma\lambda\)</span>: <span class="math display">\[
+f(x)=\tau\alpha\beta\,x^{\alpha-1}v(x)^{\beta-1}w(x)^{\tau-1}.
+\tag{2.2a}
+\]</span></li>
+<li>If <span class="math inline">\(\beta=1\)</span>, then the density
+depends on <span class="math inline">\((\alpha,\lambda)\)</span> only
+through <span class="math inline">\(\kappa=\alpha\lambda\)</span>: <span class="math display">\[
+f(x)=\frac{\kappa}{B(\gamma,\delta+1)}
+x^{\kappa\gamma-1}(1-x^{\kappa})^{\delta}.
+\tag{2.2b}
+\]</span></li>
+<li>If <span class="math inline">\(\gamma=1\)</span> and <span class="math inline">\(\lambda=1\)</span>, then the density depends on
+<span class="math inline">\((\beta,\delta)\)</span> only through <span class="math inline">\(\xi=\beta(\delta+1)\)</span>: <span class="math display">\[
+f(x)=\alpha\xi\,x^{\alpha-1}(1-x^\alpha)^{\xi-1}.
+\tag{2.2c}
+\]</span> Thus the full five-parameter embedding is not globally
+identifiable, even though reduced submodels can be identifiable when
+expressed in their own minimal parameterizations.</li>
+</ol>
+<p><em>Proof.</em> If <span class="math inline">\(\delta=0\)</span>,
+then <span class="math inline">\(B(\gamma,1)=1/\gamma\)</span> and <span class="math inline">\(z(x)^0=1\)</span>, so (2.1) reduces immediately to
+(2.2a). Hence any two pairs <span class="math inline">\((\gamma,\lambda)\)</span> with the same product
+<span class="math inline">\(\gamma\lambda\)</span> generate the same
+density. If <span class="math inline">\(\beta=1\)</span>, then <span class="math inline">\(w(x)=x^\alpha\)</span>, and (2.1) becomes (2.2b),
+which depends on <span class="math inline">\(\alpha\)</span> and <span class="math inline">\(\lambda\)</span> only through <span class="math inline">\(\alpha\lambda\)</span>. Finally, if <span class="math inline">\(\gamma=\lambda=1\)</span>, then <span class="math inline">\(B(1,\delta+1)=1/(\delta+1)\)</span>, <span class="math inline">\(w^{\gamma\lambda-1}=1\)</span>, and <span class="math inline">\(z=1-w=v^\beta\)</span>. Therefore <span class="math display">\[
+f(x)=\alpha\beta(\delta+1)x^{\alpha-1}v(x)^{\beta-1+\beta\delta}
+     =\alpha\xi x^{\alpha-1}v(x)^{\xi-1},
+\]</span> which is (2.2c). Hence distinct parameter vectors can induce
+exactly the same distribution on each of these manifolds. Whenever the
+usual differentiability conditions hold, the Fisher information for the
+full parameterization is necessarily singular there. <span class="math inline">\(\square\)</span></p>
 <p>We now verify that (2.1) defines a proper density.</p>
 <p><strong>Theorem 2.1 (Validity of the pdf).</strong><br />
 For any <span class="math inline">\(\boldsymbol{\theta} \in
-\Theta\)</span>, the function <span class="math inline">\(f(\cdot;
-\boldsymbol{\theta})\)</span> in (2.1) is a valid probability density on
-<span class="math inline">\((0,1)\)</span>.</p>
+\overline{\Theta}\)</span>, the function <span class="math inline">\(f(\cdot; \boldsymbol{\theta})\)</span> in (2.1) is
+a valid probability density on <span class="math inline">\((0,1)\)</span>.</p>
 <p><em>Proof.</em> Non-negativity is immediate from the definition. To
 prove normalization, consider the change of variable <span class="math display">\[
 u = w(x)^\lambda,\qquad 0&lt;u&lt;1.
@@ -458,11 +504,34 @@ F(x)
 \]</span> At the endpoints, <span class="math inline">\(w(0^+)^\lambda =
 0\)</span> and <span class="math inline">\(w(1^-)^\lambda = 1\)</span>,
 so <span class="math inline">\(F(0)=0\)</span> and <span class="math inline">\(F(1)=1\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Corollary 2.1 (Quantile function and random
+generation).</strong><br />
+Let <span class="math inline">\(0&lt;p&lt;1\)</span> and let <span class="math display">\[
+y_p = I^{-1}_p(\gamma,\delta+1)
+\]</span> denote the inverse, with respect to its argument, of the
+regularized incomplete beta function. Then <span class="math display">\[
+\boxed{
+Q_{\mathrm{GKw}}(p)
+= \left\{1-\left[1-y_p^{1/\lambda}\right]^{1/\beta}\right\}^{1/\alpha}.
+}
+\tag{2.4a}
+\]</span> Consequently, if <span class="math inline">\(Y\sim\mathrm{Beta}(\gamma,\delta+1)\)</span>, then
+<span class="math display">\[
+X=\left\{1-\left[1-Y^{1/\lambda}\right]^{1/\beta}\right\}^{1/\alpha}
+\tag{2.4b}
+\]</span> has the GKw distribution.</p>
+<p><em>Proof.</em> Set <span class="math inline">\(F(x)=p\)</span> in
+(2.4). Then <span class="math inline">\(w(x)^\lambda=y_p\)</span>, hence
+<span class="math inline">\(w(x)=y_p^{1/\lambda}\)</span>, <span class="math inline">\(v(x)^\beta=1-y_p^{1/\lambda}\)</span>, and
+inversion of <span class="math inline">\(v(x)=1-x^\alpha\)</span> yields
+(2.4a). Equation (2.4b) follows by the probability integral transform.
+<span class="math inline">\(\square\)</span></p>
 </div>
 <div id="the-hierarchical-structure" class="section level3">
 <h3>2.2 The Hierarchical Structure</h3>
 <p>The GKw family exhibits a rich nested structure. Several well-known
-bounded distributions arise as particular choices (and mild
+bounded distributions, or package-restricted portions of their usual
+parameter spaces, arise as particular choices (and mild
 reparameterizations) of <span class="math inline">\(\boldsymbol{\theta}\)</span>.</p>
 <p>For a data point <span class="math inline">\(x\in(0,1)\)</span> we
 will often write <span class="math display">\[
@@ -508,62 +577,45 @@ f(x)
 </div>
 <div id="kumaraswamykumaraswamy-distribution" class="section level4">
 <h4>2.2.2 Kumaraswamy–Kumaraswamy distribution</h4>
-<p>The KKw submodel is most naturally obtained via a mild
-reparameterization of <span class="math inline">\(\delta\)</span>.</p>
 <p><strong>Theorem 2.4 (Kumaraswamy–Kumaraswamy
 distribution).</strong><br />
-Fix <span class="math inline">\(\alpha,\beta,\lambda&gt;0\)</span> and
-<span class="math inline">\(\tilde\delta&gt;0\)</span>. Consider the GKw
-submodel <span class="math display">\[
-X \sim
-\mathrm{GKw}(\alpha,\beta,\gamma=1,\delta=\tilde\delta-1,\lambda),
-\quad\text{with }\tilde\delta\ge 1.
-\]</span> Then <span class="math inline">\(X\)</span> has pdf <span class="math display">\[
+Setting <span class="math inline">\(\gamma=1\)</span> in (2.1) yields
+the four-parameter Kumaraswamy–Kumaraswamy (KKw) submodel, parameterized
+consistently with <code>gkwdist</code> as <span class="math inline">\((\alpha,\beta,\delta,\lambda)\)</span>, with pdf
+<span class="math display">\[
 \boxed{
-f_{\mathrm{KKw}}(x; \alpha,\beta,\tilde\delta,\lambda)
-  = \tilde\delta\,\lambda\alpha\beta\;
-    x^{\alpha-1}v^{\beta-1}w^{\lambda-1}z^{\tilde\delta-1},
+f_{\mathrm{KKw}}(x;\alpha,\beta,\delta,\lambda)
+  =(\delta+1)\lambda\alpha\beta\,
+   x^{\alpha-1}v^{\beta-1}w^{\lambda-1}z^{\delta},
 }
 \tag{2.7}
 \]</span> CDF <span class="math display">\[
 \boxed{
-F_{\mathrm{KKw}}(x; \alpha,\beta,\tilde\delta,\lambda)
-  = 1 - z(x)^{\tilde\delta}
-  = 1 - \bigl[1-w(x)^\lambda\bigr]^{\tilde\delta},
+F_{\mathrm{KKw}}(x;\alpha,\beta,\delta,\lambda)
+  =1-z(x)^{\delta+1}
+  =1-\bigl[1-w(x)^\lambda\bigr]^{\delta+1},
 }
 \tag{2.8}
 \]</span> and quantile function <span class="math display">\[
 \boxed{
-Q_{\mathrm{KKw}}(p; \alpha,\beta,\tilde\delta,\lambda)
-  = \left\{
-      1-\left[
-           1-\Bigl(1-(1-p)^{1/\tilde\delta}\Bigr)^{1/\lambda}
-         \right]^{1/\beta}
-    \right\}^{1/\alpha},\quad 0&lt;p&lt;1.
+Q_{\mathrm{KKw}}(p;\alpha,\beta,\delta,\lambda)
+=\left\{
+  1-\left[
+      1-\Bigl(1-(1-p)^{1/(\delta+1)}\Bigr)^{1/\lambda}
+    \right]^{1/\beta}
+\right\}^{1/\alpha},\qquad 0&lt;p&lt;1.
 }
 \tag{2.9}
 \]</span></p>
-<p><em>Proof.</em> Take <span class="math inline">\(\gamma=1\)</span>
-and <span class="math inline">\(\delta=\tilde\delta-1\)</span> in (2.1):
-<span class="math display">\[
-f(x)
-  = \frac{\lambda\alpha\beta}{B(1,\tilde\delta)}
-      x^{\alpha-1}v^{\beta-1}w^{\lambda-1}z^{\tilde\delta-1}.
-\]</span> Since <span class="math inline">\(B(1,\tilde\delta) =
-1/\tilde\delta\)</span>, we obtain (2.7). From (2.4), <span class="math display">\[
-F(x) = I_{w(x)^\lambda}(1,\tilde\delta) = 1 -
-\bigl(1-w(x)^\lambda\bigr)^{\tilde\delta} = 1 - z(x)^{\tilde\delta},
-\]</span> which is (2.8). Inverting <span class="math inline">\(F(x)=p\)</span> yields <span class="math display">\[
-z(x) = (1-p)^{1/\tilde\delta},\quad
-w(x)^\lambda = 1-(1-p)^{1/\tilde\delta},\quad
-w(x) = \bigl[1-(1-p)^{1/\tilde\delta}\bigr]^{1/\lambda},
-\]</span> and <span class="math display">\[
-v(x)^\beta = 1 - w(x)
-            = 1 - \bigl[1-(1-p)^{1/\tilde\delta}\bigr]^{1/\lambda},
-\]</span> leading to (2.9). <span class="math inline">\(\square\)</span></p>
-<p>For notational simplicity, in the remainder we drop the tilde and
-write <span class="math inline">\(\delta\)</span> for the KKw shape
-parameter; the mapping to the GKw parameters is <span class="math inline">\(\delta_{\mathrm{GKw}} = \delta-1\)</span>.</p>
+<p><em>Proof.</em> With <span class="math inline">\(\gamma=1\)</span>,
+<span class="math inline">\(B(1,\delta+1)=1/(\delta+1)\)</span>, and
+(2.1) gives (2.7). From (2.4), <span class="math display">\[
+F(x)=I_{w(x)^\lambda}(1,\delta+1)
+    =1-\bigl(1-w(x)^\lambda\bigr)^{\delta+1},
+\]</span> which is (2.8). Solving <span class="math inline">\(F(x)=p\)</span> successively for <span class="math inline">\(z\)</span>, <span class="math inline">\(w\)</span>, <span class="math inline">\(v\)</span>, and <span class="math inline">\(x\)</span> yields (2.9). <span class="math inline">\(\square\)</span></p>
+<p>The standard Kumaraswamy distribution is recovered from KKw at the
+boundary value <span class="math inline">\(\delta=0\)</span> together
+with <span class="math inline">\(\lambda=1\)</span>.</p>
 </div>
 <div id="exponentiated-kumaraswamy-distribution" class="section level4">
 <h4>2.2.3 Exponentiated Kumaraswamy distribution</h4>
@@ -603,9 +655,10 @@ special case <span class="math inline">\(\lambda=1\)</span> of EKw.</p>
 </div>
 <div id="mcdonald-distribution" class="section level4">
 <h4>2.2.4 McDonald distribution</h4>
-<p><strong>Theorem 2.6 (McDonald distribution).</strong><br />
+<p><strong>Theorem 2.6 (McDonald/GB1 subfamily under the package
+parameterization).</strong><br />
 Setting <span class="math inline">\(\alpha = \beta = 1\)</span> in (2.1)
-yields the three-parameter McDonald distribution <span class="math display">\[
+yields the package-parameterized McDonald (GB1) subfamily <span class="math display">\[
 \boxed{
 f_{\mathrm{MC}}(x; \gamma,\delta,\lambda)
   = \frac{\lambda}{B(\gamma,\delta+1)}\;
@@ -621,6 +674,11 @@ F_{\mathrm{MC}}(x; \gamma,\delta,\lambda)
 \]</span></p>
 <p><em>Proof.</em> For <span class="math inline">\(\alpha=\beta=1\)</span> we have <span class="math inline">\(v(x)=1-x\)</span>, <span class="math inline">\(w(x)=x\)</span>, and <span class="math inline">\(z(x)=1-x^\lambda\)</span>. Substituting into (2.1)
 yields (2.13); the CDF follows from (2.4). <span class="math inline">\(\square\)</span></p>
+<p>Because <span class="math inline">\(\delta\ge0\)</span>, the second
+GB1 shape is <span class="math inline">\(\eta=\delta+1\ge1\)</span>.
+Thus, as with the Beta embedding in Theorem 2.8, this is the portion of
+the classical McDonald/GB1 family compatible with the package’s shifted
+parameterization.</p>
 </div>
 <div id="kumaraswamy-distribution" class="section level4">
 <h4>2.2.5 Kumaraswamy distribution</h4>
@@ -646,7 +704,8 @@ Q_{\mathrm{Kw}}(p; \alpha,\beta)
   = \bigl[1-(1-p)^{1/\beta}\bigr]^{1/\alpha},
 }
 \tag{2.17}
-\]</span> and <span class="math inline">\(r\)</span>-th moment <span class="math display">\[
+\]</span> and <span class="math inline">\(r\)</span>-th moment, for
+<span class="math inline">\(r&gt;-\alpha\)</span>, <span class="math display">\[
 \boxed{
 \mathbb{E}(X^r)
   = \beta\, B\!\left(1+\frac{r}{\alpha},\beta\right)
@@ -671,7 +730,8 @@ moment, <span class="math display">\[
 </div>
 <div id="beta-distribution" class="section level4">
 <h4>2.2.6 Beta distribution</h4>
-<p><strong>Theorem 2.8 (Beta distribution).</strong><br />
+<p><strong>Theorem 2.8 (Beta subfamily under the package
+parameterization).</strong><br />
 Setting <span class="math inline">\(\alpha=\beta=\lambda=1\)</span> in
 (2.1) yields <span class="math display">\[
 \boxed{
@@ -685,7 +745,8 @@ F_{\mathrm{Beta}}(x; \gamma,\delta)
   = I_x(\gamma,\delta+1),
 }
 \tag{2.20}
-\]</span> and <span class="math inline">\(r\)</span>-th moment <span class="math display">\[
+\]</span> and <span class="math inline">\(r\)</span>-th moment, for
+<span class="math inline">\(r&gt;-\gamma\)</span>, <span class="math display">\[
 \boxed{
 \mathbb{E}(X^r)
   = \frac{B(\gamma+r,\delta+1)}{B(\gamma,\delta+1)}
@@ -697,6 +758,14 @@ F_{\mathrm{Beta}}(x; \gamma,\delta)
 <p><em>Proof.</em> For <span class="math inline">\(\alpha=\beta=\lambda=1\)</span>, we have <span class="math inline">\(v(x)=1-x\)</span>, <span class="math inline">\(w(x)=x\)</span>, and <span class="math inline">\(z(x)=1-x\)</span>. Substituting into (2.1) gives
 (2.19); the CDF and moment follow from standard Beta distribution theory
 with shape parameters <span class="math inline">\((\gamma,\delta+1)\)</span>. <span class="math inline">\(\square\)</span></p>
+<p><strong>Remark 2.2 (Range of the embedded Beta
+family).</strong><br />
+Because the <code>gkwdist</code> parameterization uses <span class="math inline">\(\delta\ge0\)</span>, this embedding has Beta shape
+parameters <span class="math inline">\(a=\gamma&gt;0\)</span> and <span class="math inline">\(b=\delta+1\ge1\)</span>. It is therefore a genuine
+Beta subfamily, but it does <strong>not</strong> span the entire
+classical two-shape Beta family <span class="math inline">\((a,b)\in(0,\infty)^2\)</span>. The latter would
+require extending the mathematical parameter range to <span class="math inline">\(\delta&gt;-1\)</span>, which is outside the
+package parameterization used in this vignette.</p>
 <hr />
 </div>
 </div>
@@ -756,91 +825,144 @@ L_8 &amp;= \delta\sum_{i=1}^n \ln z_i. \tag{3.12}
 <div id="maximum-likelihood-estimation" class="section level3">
 <h3>3.2 Maximum Likelihood Estimation</h3>
 <p><strong>Definition 3.2 (Maximum likelihood estimator).</strong><br />
-The maximum likelihood estimator (MLE) is defined by <span class="math display">\[
+Whenever the likelihood maximum is attained, an MLE is any maximizer
+<span class="math display">\[
 \hat{\boldsymbol{\theta}}_n
-  = \arg\max_{\boldsymbol{\theta}\in\Theta}
+  \in \operatorname*{arg\,max}_{\boldsymbol{\theta}\in\overline{\Theta}}
     \ell(\boldsymbol{\theta};\mathbf{x}).
 \tag{3.13}
-\]</span></p>
-<p>We will refer to the true parameter value as <span class="math inline">\(\boldsymbol{\theta}_0\in\Theta\)</span>.</p>
-<p><strong>Theorem 3.2 (Consistency and asymptotic
-normality).</strong><br />
-Assume the usual regularity conditions for likelihood inference hold
-(e.g. Lehmann and Casella, 1998; van der Vaart, 1998), in particular
-that <span class="math inline">\(\boldsymbol{\theta}_0\in\mathrm{int}(\Theta)\)</span>
-and <span class="math display">\[
-\mathcal{I}(\boldsymbol{\theta}_0)
-  = \mathbb{E}_{\boldsymbol{\theta}_0}
-       \Bigl[-\nabla^2 \ln f(X;\boldsymbol{\theta})\Bigr]
-\]</span> is positive definite. Then <span class="math display">\[
-\hat{\boldsymbol{\theta}}_n
-  \xrightarrow{p} \boldsymbol{\theta}_0, \qquad n\to\infty,
+\]</span> The set of maximizers need not be a singleton on
+non-identifiable manifolds. In a regular identifiable parameterization,
+the local maximizer considered below is assumed to be well defined with
+probability tending to one.</p>
+<p>We will refer to the true parameter value as <span class="math inline">\(\boldsymbol{\theta}_0\in\overline{\Theta}\)</span>.</p>
+<p><strong>Theorem 3.2 (Consistency and asymptotic normality on a
+regular identifiable region).</strong><br />
+Let <span class="math inline">\(\boldsymbol\theta_0\)</span> belong to
+an open identifiable parameter region <span class="math inline">\(\Theta_R\subset\Theta^\circ\)</span>. Assume:</p>
+<ol style="list-style-type: decimal">
+<li><span class="math inline">\(\boldsymbol\theta_0\)</span> is the
+unique maximizer of <span class="math inline">\(M(\boldsymbol\theta)=\mathbb
+E_{\boldsymbol\theta_0}[\log f(X;\boldsymbol\theta)]\)</span> on the
+parameter region considered, and the normalized log-likelihood obeys a
+uniform law of large numbers sufficient for M-estimator
+consistency;</li>
+<li><span class="math inline">\(\log f(x;\boldsymbol\theta)\)</span> is
+twice continuously differentiable in a neighborhood of <span class="math inline">\(\boldsymbol\theta_0\)</span>, with domination
+conditions allowing differentiation under the integral sign and a law of
+large numbers for the Hessian;</li>
+<li>the per-observation score <span class="math inline">\(U_1(\boldsymbol\theta)=\nabla_{\boldsymbol\theta}\log
+f(X;\boldsymbol\theta)\)</span> has finite second moment and <span class="math display">\[
+\mathcal I(\boldsymbol\theta_0)
+=\mathbb E_{\boldsymbol\theta_0}
+\left[U_1(\boldsymbol\theta_0)U_1(\boldsymbol\theta_0)^\top\right]
+=-\mathbb E_{\boldsymbol\theta_0}
+\left[\nabla^2\log f(X;\boldsymbol\theta_0)\right]
+\]</span> is positive definite.</li>
+</ol>
+<p>Then any sequence of MLEs in this regular region satisfying the usual
+approximate-maximization condition is consistent, <span class="math display">\[
+\hat{\boldsymbol\theta}_n\xrightarrow{p}\boldsymbol\theta_0,
 \tag{3.14}
 \]</span> and <span class="math display">\[
-\sqrt{n}(\hat{\boldsymbol{\theta}}_n - \boldsymbol{\theta}_0)
-  \xrightarrow{d}
-  \mathcal{N}_5\bigl(\mathbf{0},
-\mathcal{I}(\boldsymbol{\theta}_0)^{-1}\bigr),
-\qquad n\to\infty.
+\sqrt n(\hat{\boldsymbol\theta}_n-\boldsymbol\theta_0)
+\xrightarrow{d}
+\mathcal N_5\left(\mathbf 0,\mathcal I(\boldsymbol\theta_0)^{-1}\right).
 \tag{3.15}
 \]</span></p>
-<p><em>Proof.</em> The regularity conditions are satisfied for all <span class="math inline">\(x\in(0,1)\)</span> and <span class="math inline">\(\boldsymbol{\theta}\in\mathrm{int}(\Theta)\)</span>:
-the support does not depend on <span class="math inline">\(\boldsymbol{\theta}\)</span>, <span class="math inline">\(f(x;\boldsymbol{\theta})\)</span> is continuously
-differentiable in a neighborhood of <span class="math inline">\(\boldsymbol{\theta}_0\)</span>, the score has mean
-zero and finite second moment, and the Fisher information is
-non-singular. The result then follows from standard MLE asymptotic
-theory (see, e.g., van der Vaart, 1998). <span class="math inline">\(\square\)</span></p>
+<p><em>Proof.</em> The first assertion follows from the standard
+consistency theorem for M-estimators because <span class="math inline">\(n^{-1}\ell_n(\boldsymbol\theta)\)</span> converges
+uniformly to <span class="math inline">\(M(\boldsymbol\theta)\)</span>,
+whose maximizer is unique at <span class="math inline">\(\boldsymbol\theta_0\)</span>. For asymptotic
+normality, expand the score around <span class="math inline">\(\boldsymbol\theta_0\)</span>: <span class="math display">\[
+\mathbf 0
+=U_n(\hat{\boldsymbol\theta}_n)
+=U_n(\boldsymbol\theta_0)
+  +H_n(\tilde{\boldsymbol\theta}_n)
+   (\hat{\boldsymbol\theta}_n-\boldsymbol\theta_0),
+\]</span> where <span class="math inline">\(\tilde{\boldsymbol\theta}_n\)</span> lies between
+<span class="math inline">\(\hat{\boldsymbol\theta}_n\)</span> and <span class="math inline">\(\boldsymbol\theta_0\)</span>. By the multivariate
+central limit theorem, <span class="math inline">\(n^{-1/2}U_n(\boldsymbol\theta_0)\Rightarrow\mathcal
+N_5(0,\mathcal I(\boldsymbol\theta_0))\)</span>, while consistency and
+the Hessian law of large numbers give <span class="math inline">\(-n^{-1}H_n(\tilde{\boldsymbol\theta}_n)\xrightarrow{p}\mathcal
+I(\boldsymbol\theta_0)\)</span>. Slutsky’s theorem yields (3.15). <span class="math inline">\(\square\)</span></p>
+<p><strong>Remark 3.1 (Why the qualification is
+essential).</strong><br />
+Theorem 3.2 does not apply to the full five-parameter representation on
+the non-identifiable manifolds in Proposition 2.1. In particular, <span class="math inline">\(\delta=0\)</span> makes <span class="math inline">\((\gamma,\lambda)\)</span> confounded through <span class="math inline">\(\gamma\lambda\)</span>; <span class="math inline">\(\beta=1\)</span> makes <span class="math inline">\((\alpha,\lambda)\)</span> confounded through <span class="math inline">\(\alpha\lambda\)</span>; and <span class="math inline">\(\gamma=\lambda=1\)</span> makes <span class="math inline">\((\beta,\delta)\)</span> confounded through <span class="math inline">\(\beta(\delta+1)\)</span>. At such points the
+information matrix for the full embedding is singular and the usual
+five-dimensional Gaussian limit cannot hold. A reduced model can
+nevertheless possess regular asymptotics when it is written in an
+identifiable minimal parameterization.</p>
 </div>
 <div id="likelihood-ratio-tests" class="section level3">
 <h3>3.3 Likelihood Ratio Tests</h3>
 <p>For nested models, likelihood ratio tests follow Wilks’ theorem.</p>
-<p><strong>Theorem 3.3 (Wilks’ theorem).</strong><br />
-Consider testing nested hypotheses <span class="math display">\[
-H_0:\ \boldsymbol{\theta}\in\Theta_0
-\quad\text{vs.}\quad
-H_1:\ \boldsymbol{\theta}\in\Theta,
-\]</span> where <span class="math inline">\(\Theta_0\subset\Theta\)</span> is defined by <span class="math inline">\(r\)</span> independent constraints. Let <span class="math display">\[
+<p><strong>Theorem 3.3 (Wilks’ theorem on a regular interior
+null).</strong><br />
+Consider nested hypotheses <span class="math inline">\(H_0:\
+\boldsymbol\theta\in\Theta_0\)</span> versus <span class="math inline">\(H_1:\ \boldsymbol\theta\in\Theta_R\)</span>, where
+locally <span class="math inline">\(\Theta_0\)</span> is a smooth
+identifiable submanifold of codimension <span class="math inline">\(r\)</span>, the true parameter is an interior
+point relative to the regular parameterization, and the Fisher
+information is nonsingular. Let <span class="math display">\[
 \Lambda_n
-  = 2\Bigl\{
-        \ell(\hat{\boldsymbol{\theta}}_n)
-       -\ell(\hat{\boldsymbol{\theta}}_{0,n})
-     \Bigr\},
+=2\{\ell(\hat{\boldsymbol\theta}_n)-\ell(\hat{\boldsymbol\theta}_{0,n})\}.
 \tag{3.16}
-\]</span> where <span class="math inline">\(\hat{\boldsymbol{\theta}}_n\)</span> and <span class="math inline">\(\hat{\boldsymbol{\theta}}_{0,n}\)</span> are the
-unconstrained and constrained MLEs, respectively. Under <span class="math inline">\(H_0\)</span>, <span class="math display">\[
-\Lambda_n \xrightarrow{d} \chi^2_r,\qquad n\to\infty.
+\]</span> Then, under <span class="math inline">\(H_0\)</span>, <span class="math display">\[
+\Lambda_n\xrightarrow{d}\chi_r^2.
 \tag{3.17}
 \]</span></p>
-<p><em>Proof.</em> Standard; see Casella and Berger (2002), Chapter 10.
-<span class="math inline">\(\square\)</span></p>
-<p>Within the GKw hierarchy we obtain the following tests.</p>
+<p><em>Proof.</em> This is the standard Wilks expansion of the
+log-likelihood under local asymptotic normality and a regular interior
+constraint. The assumptions exclude boundary points and loss of
+identifiability. <span class="math inline">\(\square\)</span></p>
 <p><strong>Corollary 3.1 (LR tests within the GKw
 hierarchy).</strong><br />
-Under the usual regularity conditions and away from parameter
-boundaries, the following likelihood ratio tests are asymptotically
-<span class="math inline">\(\chi^2\)</span>:</p>
-<p><span class="math display">\[
+The following regular reductions have the usual chi-squared limit
+provided the null point lies in an identifiable region with nonsingular
+information: <span class="math display">\[
 \begin{align}
 \text{GKw vs. BKw:}\quad
-  &amp;H_0:\ \lambda = 1
-  &amp;&amp;\Rightarrow\ \Lambda_n \xrightarrow{d} \chi^2_1,
-  \tag{3.18}\\[3pt]
+&amp;H_0:\ \lambda=1
+&amp;&amp;\Rightarrow\ \Lambda_n\xrightarrow{d}\chi_1^2,
+\tag{3.18}\\[3pt]
 \text{GKw vs. KKw:}\quad
-  &amp;H_0:\ \gamma = 1
-  &amp;&amp;\Rightarrow\ \Lambda_n \xrightarrow{d} \chi^2_1,
-  \tag{3.19}\\[3pt]
+&amp;H_0:\ \gamma=1
+&amp;&amp;\Rightarrow\ \Lambda_n\xrightarrow{d}\chi_1^2,
+\tag{3.19}\\[3pt]
 \text{BKw vs. Beta:}\quad
-  &amp;H_0:\ \alpha = \beta = 1
-  &amp;&amp;\Rightarrow\ \Lambda_n \xrightarrow{d} \chi^2_2,
-  \tag{3.20}\\[3pt]
-\text{KKw vs. Kw:}\quad
-  &amp;H_0:\ \delta = \lambda = 1
-  &amp;&amp;\Rightarrow\ \Lambda_n \xrightarrow{d} \chi^2_2.
-  \tag{3.21}
+&amp;H_0:\ \alpha=\beta=1
+&amp;&amp;\Rightarrow\ \Lambda_n\xrightarrow{d}\chi_2^2. \tag{3.20}
 \end{align}
-\]</span></p>
-<p>The precise mapping between <span class="math inline">\(\delta\)</span> in KKw and <span class="math inline">\(\delta\)</span> in GKw is as described in Theorem
-2.4; the dimension reduction in each hypothesis is nevertheless <span class="math inline">\(r\)</span> as indicated.</p>
+\]</span> For the first two comparisons, this excludes, in particular,
+null points at which the full GKw representation loses
+identifiability.</p>
+<p>The comparison KKw versus Kw is different. In distribution space, the
+Kw null inside KKw is the singular slice <span class="math display">\[
+H_0:\ \lambda=1,
+\tag{3.21}
+\]</span> because, when <span class="math inline">\(\gamma=1\)</span> is
+already fixed by KKw and <span class="math inline">\(\lambda=1\)</span>,
+Proposition 2.1(3) gives <span class="math display">\[
+f_{\mathrm{KKw}}(x)=\alpha\xi x^{\alpha-1}(1-x^\alpha)^{\xi-1},
+\qquad \xi=\beta(\delta+1),
+\]</span> which is exactly a Kw<span class="math inline">\((\alpha,\xi)\)</span> density for
+<strong>every</strong> <span class="math inline">\(\delta\ge0\)</span>.
+The commonly used representative restriction <span class="math inline">\(\delta=0,\lambda=1\)</span> selects one
+parameterization of the same Kw null but is not its full preimage in the
+redundant KKw coordinates. Consequently, under <span class="math inline">\(H_0\)</span>, the split of <span class="math inline">\(\xi\)</span> into <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\delta\)</span> is unidentified. The null is
+therefore a singular loss-of-identifiability problem (and the
+representative <span class="math inline">\(\delta=0\)</span> also lies
+on the package boundary). Wilks’ ordinary chi-squared theorem does
+<strong>not</strong> apply, and one should not assume a standard
+chi-bar-square mixture without a model-specific derivation of the local
+experiment. In practice, a parametric bootstrap under the fitted
+two-parameter Kw null is a defensible calibration strategy, but its
+finite-sample performance should itself be checked by simulation for the
+intended sample size and parameter region. Self and Liang (1987) provide
+a general boundary-likelihood framework; the unidentified nuisance
+direction present here requires additional care.</p>
 <hr />
 </div>
 </div>
@@ -1001,6 +1123,17 @@ v_i\)</span>, <span class="math display">\[
   = \delta\sum_{i=1}^n \frac{1}{z_i}\frac{\partial z_i}{\partial\lambda}
   = -\delta\sum_{i=1}^n \frac{w_i^\lambda\ln w_i}{z_i}.
 \]</span> Together these yield (4.6). <span class="math inline">\(\square\)</span></p>
+<p><strong>Implementation sign convention.</strong><br />
+Equations (4.2)–(4.6) are derivatives of the
+<strong>log-likelihood</strong> <span class="math inline">\(\ell\)</span>. The optimization helpers in
+<code>gkwdist</code> are written for the negative log-likelihood;
+therefore their gradient and Hessian should satisfy <span class="math display">\[
+\nabla(-\ell)=-U(\boldsymbol\theta),
+\qquad
+\nabla^2(-\ell)=-H(\boldsymbol\theta)=\mathcal J(\boldsymbol\theta).
+\]</span> This distinction is essential when comparing the formulas in
+this vignette with <code>gr*</code> and <code>hs*</code> implementation
+routines.</p>
 </div>
 <div id="the-hessian-and-observed-information-matrix" class="section level3">
 <h3>4.2 The Hessian and Observed Information Matrix</h3>
@@ -1030,6 +1163,38 @@ D^{u}_{jk}(i)
 <p>In particular, <span class="math display">\[
 \frac{\partial^2}{\partial\theta_j^2}\ln u_i = D^u_{jj}(i).
 \]</span></p>
+<p>For implementation, all raw second derivatives entering <span class="math inline">\(D^u_{jk}(i)\)</span> can be written explicitly.
+Let <span class="math display">\[
+A_i=x_i^\alpha,\qquad L_i=\ln x_i.
+\]</span> Then <span class="math display">\[
+\begin{align}
+v_{i,\alpha} &amp;=-A_iL_i,
+&amp;v_{i,\alpha\alpha} &amp;=-A_iL_i^2,\tag{4.7a}\\
+w_{i,\alpha} &amp;=\beta v_i^{\beta-1}A_iL_i,
+&amp;w_{i,\beta} &amp;=-v_i^\beta\ln v_i,\tag{4.7b}\\
+w_{i,\alpha\alpha}
+&amp;=\beta A_iL_i^2v_i^{\beta-2}\{v_i-(\beta-1)A_i\},
+&amp;w_{i,\alpha\beta}
+&amp;=A_iL_iv_i^{\beta-1}(1+\beta\ln v_i),\tag{4.7c}\\
+w_{i,\beta\beta}
+&amp;=-v_i^\beta(\ln v_i)^2.\tag{4.7d}
+\end{align}
+\]</span> For <span class="math inline">\(j,k\in\{\alpha,\beta\}\)</span>, <span class="math display">\[
+\begin{align}
+z_{i,j}
+&amp;=-\lambda w_i^{\lambda-1}w_{i,j},\tag{4.7e}\\
+z_{i,jk}
+&amp;=-\lambda\left[(\lambda-1)w_i^{\lambda-2}w_{i,j}w_{i,k}
+                  +w_i^{\lambda-1}w_{i,jk}\right],\tag{4.7f}\\
+z_{i,\lambda}
+&amp;=-w_i^\lambda\ln w_i,\tag{4.7g}\\
+z_{i,j\lambda}
+&amp;=-w_i^{\lambda-1}w_{i,j}(1+\lambda\ln w_i),\tag{4.7h}\\
+z_{i,\lambda\lambda}
+&amp;=-w_i^\lambda(\ln w_i)^2.\tag{4.7i}
+\end{align}
+\]</span> These formulas, together with the definition of <span class="math inline">\(D^u_{jk}(i)\)</span>, give every Hessian entry
+below without numerical differentiation.</p>
 <div id="diagonal-elements" class="section level4">
 <h4>4.2.1 Diagonal elements</h4>
 <p><strong>Theorem 4.2 (Diagonal elements of the
@@ -1115,17 +1280,11 @@ derivatives of <span class="math inline">\(\ell\)</span> are:</p>
 \frac{\partial^2\ell}{\partial\lambda\,\partial\alpha}
 &amp;= \gamma\sum_{i=1}^n
       \frac{1}{w_i}\frac{\partial w_i}{\partial\alpha}
-    + \delta\sum_{i=1}^n
-      \frac{\partial}{\partial\alpha}
-      \left(\frac{1}{z_i}\frac{\partial z_i}{\partial\lambda}\right),
-\tag{4.23}\\[6pt]
+    + \delta\sum_{i=1}^n D^z_{\alpha\lambda}(i), \tag{4.23}\\[6pt]
 \frac{\partial^2\ell}{\partial\lambda\,\partial\beta}
 &amp;= \gamma\sum_{i=1}^n
       \frac{1}{w_i}\frac{\partial w_i}{\partial\beta}
-    + \delta\sum_{i=1}^n
-      \frac{\partial}{\partial\beta}
-      \left(\frac{1}{z_i}\frac{\partial z_i}{\partial\lambda}\right),
-\tag{4.24}\\[6pt]
+    + \delta\sum_{i=1}^n D^z_{\beta\lambda}(i), \tag{4.24}\\[6pt]
 \frac{\partial^2\ell}{\partial\lambda\,\partial\gamma}
 &amp;= \sum_{i=1}^n \ln w_i, \tag{4.25}\\[6pt]
 \frac{\partial^2\ell}{\partial\lambda\,\partial\delta}
@@ -1173,9 +1332,9 @@ follow recursively from the definitions of these transformations.</p>
 </div>
 <div id="asymptotic-variancecovariance-matrix" class="section level3">
 <h3>4.3 Asymptotic Variance–Covariance Matrix</h3>
-<p>Under the conditions of Theorem 3.2, the asymptotic
-variance–covariance matrix of the MLE is governed by the Fisher
-information.</p>
+<p>On a regular identifiable parameter region satisfying Theorem 3.2,
+the asymptotic variance–covariance matrix of the MLE is governed by the
+Fisher information.</p>
 <p>Let <span class="math inline">\(\mathcal{I}(\boldsymbol{\theta}_0)\)</span> denote
 the <strong>per-observation</strong> Fisher information, <span class="math display">\[
 \mathcal{I}(\boldsymbol{\theta}_0)
@@ -1195,7 +1354,7 @@ Under the regularity assumptions of Theorem 3.2, <span class="math display">\[
   \approx \mathcal{J}(\hat{\boldsymbol{\theta}}_n)^{-1},
 \tag{4.27}
 \]</span> and the asymptotic standard error of <span class="math inline">\(\hat\theta_j\)</span> is approximated by <span class="math display">\[
-\operatorname{SE}(\hat\theta_j)
+\widehat{\operatorname{SE}}(\hat\theta_j)
   =
 \sqrt{\bigl[\mathcal{J}(\hat{\boldsymbol{\theta}}_n)^{-1}\bigr]_{jj}}.
 \tag{4.28}
@@ -1212,78 +1371,104 @@ Combining this with the asymptotic normality (3.15) yields
 <h2>5. Computational Aspects and Discussion</h2>
 <div id="numerical-stability" class="section level3">
 <h3>5.1 Numerical Stability</h3>
-<p>Direct evaluation of expressions such as <span class="math inline">\(v_i = 1-x_i^\alpha\)</span> can suffer from
-catastrophic cancellation when <span class="math inline">\(x_i^\alpha
-\approx 1\)</span> and from underflow when <span class="math inline">\(x_i^\alpha\)</span> is very small. To mitigate
-these issues, the implementation in <code>gkwdist</code> works primarily
-in log-scale.</p>
-<p>For example, we compute <span class="math inline">\(\ln v_i\)</span>
-via a numerically stable <code>log1mexp</code> transformation.</p>
+<p>Direct evaluation of <span class="math inline">\(v_i=1-x_i^\alpha\)</span>, <span class="math inline">\(w_i=1-v_i^\beta\)</span>, and <span class="math inline">\(z_i=1-w_i^\lambda\)</span> can suffer catastrophic
+cancellation when the subtracted quantity is close to one. The
+implementation should therefore propagate the cascade on the log
+scale.</p>
 <p><strong>Algorithm 5.1 (Stable computation of <span class="math inline">\(\log(1-e^a)\)</span> for <span class="math inline">\(a&lt;0\)</span>).</strong></p>
 <p>For <span class="math inline">\(a&lt;0\)</span>, define <span class="math display">\[
-\text{log1mexp}(a)
-  =
-  \begin{cases}
-    \ln\bigl(-\operatorname{expm1}(a)\bigr),
-      &amp; a &lt; -\ln 2,\\[4pt]
-    \ln\bigl(1 - e^a\bigr),
-      &amp; \text{otherwise}.
-  \end{cases}
+\operatorname{log1mexp}(a)=
+\begin{cases}
+\log1p(-e^a), &amp; a\le -\log 2,\\[4pt]
+\log(-\operatorname{expm1}(a)), &amp; -\log 2&lt;a&lt;0.
+\end{cases}
 \tag{5.1}
-\]</span> Then <span class="math display">\[
-\ln v_i = \text{log1mexp}(\alpha \ln x_i). \tag{5.2}
-\]</span></p>
-<p>This strategy ensures high relative accuracy across the full range
-<span class="math inline">\(a\in(-\infty,0)\)</span> (see Mächler,
-2012), and analogous transformations are used wherever expressions of
-the form <span class="math inline">\(\log(1 - \text{something})\)</span>
-occur.</p>
+\]</span> The first branch avoids loss of relative accuracy when <span class="math inline">\(e^a\)</span> is small, while the second avoids
+cancellation when <span class="math inline">\(a\)</span> is close to
+zero. Thus <span class="math display">\[
+\begin{align}
+\log v_i &amp;=\operatorname{log1mexp}(\alpha\log x_i),\tag{5.2a}\\
+\log w_i &amp;=\operatorname{log1mexp}(\beta\log v_i),\tag{5.2b}\\
+\log z_i &amp;=\operatorname{log1mexp}(\lambda\log w_i).\tag{5.2c}
+\end{align}
+\]</span> This is the stable branch structure recommended by Mächler
+(2012).</p>
+<p>The same principle should be used for ratios appearing in the score
+and Hessian. For example, <span class="math display">\[
+\frac{x_i^\alpha}{v_i}
+=\exp\{\alpha\log x_i-\log v_i\},\qquad
+\frac{v_i^\beta}{w_i}
+=\exp\{\beta\log v_i-\log w_i\},\qquad
+\frac{w_i^\lambda}{z_i}
+=\exp\{\lambda\log w_i-\log z_i\}.
+\tag{5.2d}
+\]</span> Products such as <span class="math inline">\(v_i^{\beta-1}w_i^{\lambda-1}/z_i\)</span> should
+likewise be assembled from sums and differences of logged factors
+whenever direct powers or divisions would overflow, underflow, or
+magnify cancellation.</p>
 </div>
 <div id="optimization" class="section level3">
 <h3>5.2 Optimization</h3>
-<p>The analytic score in Theorem 4.1 allows efficient use of
-quasi-Newton methods such as BFGS.</p>
-<p><strong>Algorithm 5.2 (Maximum likelihood estimation via
-BFGS).</strong></p>
-<p><strong>Input:</strong> data <span class="math inline">\(\mathbf{x}\in(0,1)^n\)</span>.</p>
-<p><strong>Output:</strong> MLE <span class="math inline">\(\hat{\boldsymbol{\theta}}_n\)</span> and observed
-information <span class="math inline">\(\mathcal{J}(\hat{\boldsymbol{\theta}}_n)\)</span>.</p>
-<ol style="list-style-type: decimal">
-<li><strong>Initialization.</strong> Obtain starting values <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span> using
-method-of-moments, simple submodels (e.g. Beta or Kw), or a coarse grid
-search.</li>
-<li><strong>Quasi-Newton iteration.</strong> For <span class="math inline">\(k=0,1,2,\dots\)</span>:
-<ul>
-<li>Evaluate <span class="math inline">\(\ell(\boldsymbol{\theta}^{(k)})\)</span> and <span class="math inline">\(U(\boldsymbol{\theta}^{(k)})\)</span> using
-(3.2)–(3.3) and Theorem 4.1.</li>
-<li>Update <span class="math display">\[
-\boldsymbol{\theta}^{(k+1)}
-  = \boldsymbol{\theta}^{(k)}
-    - \rho_k B_k^{-1} U(\boldsymbol{\theta}^{(k)}),
-\]</span> where <span class="math inline">\(B_k\)</span> is a
-positive-definite approximation of the Hessian and <span class="math inline">\(\rho_k\)</span> is a step size obtained by line
-search.</li>
-<li>Update <span class="math inline">\(B_k\)</span> using the standard
-BFGS formula.</li>
-<li>Stop when <span class="math inline">\(\|U(\boldsymbol{\theta}^{(k+1)})\|\)</span> is
-below a specified tolerance.</li>
-</ul></li>
-<li><strong>Observed information.</strong> At convergence, compute <span class="math inline">\(\mathcal{J}(\hat{\boldsymbol{\theta}}_n)=-H(\hat{\boldsymbol{\theta}}_n)\)</span>
-using Theorems 4.2–4.3.</li>
-<li><strong>Return</strong> <span class="math inline">\(\hat{\boldsymbol{\theta}}_n\)</span> and <span class="math inline">\(\mathcal{J}(\hat{\boldsymbol{\theta}}_n)\)</span>.</li>
-</ol>
-<p><strong>Theorem 5.1 (Superlinear convergence).</strong><br />
-Under standard assumptions (Nocedal and Wright, 2006), if <span class="math inline">\(\boldsymbol{\theta}^{(0)}\)</span> is sufficiently
-close to <span class="math inline">\(\hat{\boldsymbol{\theta}}_n\)</span>, the BFGS
-algorithm with exact analytical gradients achieves superlinear
-convergence: <span class="math display">\[
-\|\boldsymbol{\theta}^{(k+1)} - \hat{\boldsymbol{\theta}}_n\|
-  = o\bigl(\|\boldsymbol{\theta}^{(k)} -
-\hat{\boldsymbol{\theta}}_n\|\bigr).
+<p>For the regular five-parameter model it is convenient to optimize an
+unconstrained negative log-likelihood. Define <span class="math display">\[
+\eta=(\eta_1,\ldots,\eta_5)^\top,
+\qquad
+(\alpha,\beta,\gamma,\delta,\lambda)
+=(e^{\eta_1},e^{\eta_2},e^{\eta_3},e^{\eta_4},e^{\eta_5}),
 \tag{5.3}
+\]</span> so that <span class="math inline">\(\delta&gt;0\)</span>.
+Boundary submodels such as EKw or Kw should be fitted as their own
+reduced parameterizations rather than approximated by driving <span class="math inline">\(\delta\)</span> numerically to zero in the
+non-identifiable five-parameter representation. Let <span class="math display">\[
+m(\eta)=-\ell(\theta(\eta)).
 \]</span></p>
-<p>In practice, the availability of exact gradients greatly improves
-both speed and robustness relative to numerical differentiation.</p>
+<p><strong>Algorithm 5.2 (Maximum likelihood via BFGS applied to <span class="math inline">\(-\ell\)</span>).</strong></p>
+<ol style="list-style-type: decimal">
+<li><strong>Initialization.</strong> Obtain a finite starting vector
+<span class="math inline">\(\eta^{(0)}\)</span>, preferably from a
+simpler identifiable submodel.</li>
+<li><strong>BFGS iteration.</strong> At iteration <span class="math inline">\(k\)</span>, evaluate <span class="math inline">\(m(\eta^{(k)})\)</span> and its exact gradient.
+With <span class="math inline">\(H_k\)</span> a positive-definite
+approximation to the inverse Hessian of <span class="math inline">\(m\)</span>, use the descent direction <span class="math display">\[
+p_k=-H_k\nabla m(\eta^{(k)}),
+\]</span> choose a step length <span class="math inline">\(\rho_k&gt;0\)</span> satisfying standard
+line-search conditions (e.g. Wolfe conditions), and update <span class="math display">\[
+\eta^{(k+1)}=\eta^{(k)}+\rho_kp_k.
+\]</span> Apply the standard BFGS inverse-Hessian update to <span class="math inline">\(H_k\)</span>.</li>
+<li><strong>Convergence checks.</strong> Require a small gradient norm
+together with stable parameter and objective changes; inspect the
+Hessian conditioning and profile likelihood when parameters are weakly
+identified.</li>
+<li><strong>Observed information.</strong> Transform the Hessian back to
+the original parameterization if standard errors are reported on the
+<span class="math inline">\(\theta\)</span>-scale, and compute the
+observed information only at a regular local maximum.</li>
+</ol>
+<p>This formulation avoids the sign inconsistency that arises if a
+positive-definite BFGS matrix is described as an approximation to the
+Hessian of the <em>maximized</em> log-likelihood, whose Hessian is
+negative definite at a strict local maximum.</p>
+<p><strong>Theorem 5.1 (Local superlinear convergence of
+BFGS).</strong><br />
+Suppose <span class="math inline">\(m\)</span> is twice continuously
+differentiable in a neighborhood of a local minimizer <span class="math inline">\(\hat\eta\)</span>, <span class="math inline">\(\nabla^2m(\hat\eta)\)</span> is positive definite,
+the Hessian is locally Lipschitz continuous, the BFGS iterates converge
+to <span class="math inline">\(\hat\eta\)</span>, exact gradients are
+used, and the line search satisfies the standard conditions required by
+BFGS convergence theory. Then the BFGS iterates are q-superlinearly
+convergent: <span class="math display">\[
+\frac{\|\eta^{(k+1)}-\hat\eta\|}{\|\eta^{(k)}-\hat\eta\|}\longrightarrow0.
+\tag{5.4}
+\]</span> This is a local convergence statement; exact gradients alone
+do not guarantee global convergence for an arbitrary non-concave
+likelihood.</p>
+<p><em>Justification.</em> Under the stated smoothness, curvature,
+convergence and line-search hypotheses, the standard BFGS theory yields
+the Dennis–Moré condition for the inverse-Hessian approximations, which
+implies q-superlinear convergence of the iterates. This is a theorem
+about the local minimization problem for <span class="math inline">\(m=-\ell\)</span>, not a claim that an arbitrary
+starting value reaches the global MLE; see Nocedal and Wright (2006),
+Chapter 6. <span class="math inline">\(\square\)</span></p>
 </div>
 <div id="gradient-accuracy" class="section level3">
 <h3>5.3 Gradient Accuracy</h3>
@@ -1300,63 +1485,84 @@ D_h
   D_h - \frac{\partial\ell}{\partial\theta_j}
 \right|
   = O(h^2) + O\!\left(\frac{\epsilon}{h}\right),
-\tag{5.4}
+\tag{5.5}
 \]</span> where <span class="math inline">\(\epsilon\)</span> is machine
 precision (approximately <span class="math inline">\(2.22\times10^{-16}\)</span> in double precision).
-The optimal step size is <span class="math inline">\(h^* \asymp
-(\epsilon/M)^{1/3}\)</span>, where <span class="math inline">\(M\)</span> bounds the third derivative of <span class="math inline">\(\ell\)</span> in a neighborhood of <span class="math inline">\(\boldsymbol{\theta}\)</span>.</p>
-<p><em>Proof.</em> Standard finite-difference error analysis; see
-Nocedal and Wright (2006), Chapter 8. <span class="math inline">\(\square\)</span></p>
+Balancing truncation and roundoff errors gives the familiar cube-root
+scaling <span class="math inline">\(h=O(\epsilon^{1/3})\)</span> after
+the objective and parameter have been appropriately scaled. There is no
+universal numerical value of <span class="math inline">\(h\)</span>,
+because the constants depend on the local third derivative and on the
+scale of the likelihood evaluation.</p>
+<p><em>Proof.</em> Taylor expansion about <span class="math inline">\(\boldsymbol\theta\)</span> gives <span class="math display">\[
+\ell(\boldsymbol\theta\pm h\mathbf e_j)
+=\ell(\boldsymbol\theta)
+\pm h\ell_j
++\frac{h^2}{2}\ell_{jj}
+\pm\frac{h^3}{6}\ell_{jjj}
++O(h^4),
+\]</span> so subtraction and division by <span class="math inline">\(2h\)</span> leave a truncation error <span class="math inline">\(O(h^2)\)</span>. If each floating-point objective
+evaluation has absolute perturbation of order <span class="math inline">\(O(\epsilon)\)</span> on the working scale,
+subtracting two such values and dividing by <span class="math inline">\(2h\)</span> contributes <span class="math inline">\(O(\epsilon/h)\)</span>. Balancing these two
+leading orders gives <span class="math inline">\(h^2\asymp\epsilon/h\)</span>, hence <span class="math inline">\(h=O(\epsilon^{1/3})\)</span> after suitable
+scaling. See Nocedal and Wright (2006), Chapter 8. <span class="math inline">\(\square\)</span></p>
 <p>In contrast, the analytical gradients of Theorem 4.1 can be evaluated
 with accuracy limited essentially only by floating-point roundoff and
-require a single evaluation of <span class="math inline">\(f\)</span>
-per data point, rather than <span class="math inline">\(2p\)</span>
-evaluations per gradient component (<span class="math inline">\(p=5\)</span> here) for central differences.</p>
+can be accumulated in one <span class="math inline">\(O(n)\)</span> pass
+through the data, whereas a central-difference approximation to the full
+<span class="math inline">\(p\)</span>-dimensional gradient requires
+<span class="math inline">\(2p\)</span> likelihood evaluations (here
+<span class="math inline">\(p=5\)</span>).</p>
 </div>
 <div id="practical-recommendations" class="section level3">
 <h3>5.4 Practical Recommendations</h3>
 <p><strong>Guideline 5.1 (Model selection within the GKw
 hierarchy).</strong></p>
 <ol style="list-style-type: decimal">
-<li>Start from the simplest two-parameter models:
-<ul>
-<li>Beta<span class="math inline">\((\gamma,\delta+1)\)</span>,</li>
-<li>Kumaraswamy<span class="math inline">\((\alpha,\beta)\)</span>.</li>
-</ul></li>
-<li>If these are inadequate, consider three-parameter extensions:
-<ul>
-<li>EKw<span class="math inline">\((\alpha,\beta,\lambda)\)</span>,</li>
-<li>McDonald<span class="math inline">\((\gamma,\delta,\lambda)\)</span>.</li>
-</ul></li>
-<li>For more complex patterns, move to four-parameter models:
-<ul>
-<li>BKw<span class="math inline">\((\alpha,\beta,\gamma,\delta)\)</span>,</li>
-<li>KKw<span class="math inline">\((\alpha,\beta,\delta,\lambda)\)</span>.</li>
-</ul></li>
-<li>Use the full five-parameter GKw model only when the sample size is
-sufficiently large (e.g. <span class="math inline">\(n\gtrsim
-500\)</span>) to avoid over-parameterization and numerical
-instability.</li>
-<li>Compare candidate models using information criteria such as <span class="math display">\[
-\mathrm{AIC} = -2\ell(\hat{\boldsymbol{\theta}}) + 2p,
-\quad
-\mathrm{BIC} = -2\ell(\hat{\boldsymbol{\theta}}) + p\ln n,
-\]</span> where <span class="math inline">\(p\)</span> is the number of
-free parameters.</li>
+<li>Begin with simpler identifiable models such as the embedded Beta
+subfamily or the Kumaraswamy model when they are scientifically
+plausible.</li>
+<li>Consider EKw or McDonald-type extensions when one additional shape
+mechanism is needed.</li>
+<li>Use BKw or KKw when the additional flexibility is supported by the
+data and by stable likelihood geometry.</li>
+<li>Fit the full five-parameter GKw model only when the likelihood is
+well identified: inspect profile likelihoods, the observed-information
+spectrum, sensitivity to starting values, and parametric-bootstrap
+behavior. There is no distribution-free sample-size cutoff such as <span class="math inline">\(n\ge500\)</span> that guarantees identifiability
+or numerical stability.</li>
+<li>Compare candidate models with likelihood criteria such as <span class="math display">\[
+\mathrm{AIC}=-2\ell(\hat{\boldsymbol\theta})+2p,
+\qquad
+\mathrm{BIC}=-2\ell(\hat{\boldsymbol\theta})+p\log n,
+\]</span> while remembering that ordinary likelihood-ratio reference
+distributions can fail for boundary or non-identifiable reductions.</li>
 </ol>
 <p><strong>Guideline 5.2 (Diagnostics).</strong></p>
 <ol style="list-style-type: decimal">
-<li><strong>Q–Q plot.</strong> Compare empirical quantiles with
-theoretical quantiles from the fitted model.</li>
-<li><strong>Probability integral transform.</strong> The transformed
-values <span class="math inline">\(\{F(x_i;\hat{\boldsymbol{\theta}})\}_{i=1}^n\)</span>
-should be approximately i.i.d. <span class="math inline">\(\mathrm{Uniform}(0,1)\)</span>.</li>
-<li><strong>Conditioning of the information matrix.</strong> Check <span class="math inline">\(\kappa(\mathcal{J}(\hat{\boldsymbol{\theta}}))\)</span>,
-the condition number of the observed information; large values
-(e.g. <span class="math inline">\(&gt;10^8\)</span>) indicate potential
-identifiability problems.</li>
-<li><strong>Positive definiteness.</strong> All eigenvalues of <span class="math inline">\(\mathcal{J}(\hat{\boldsymbol{\theta}})\)</span>
-should be strictly positive for valid standard error estimates.</li>
+<li><strong>Q-Q plot.</strong> Use the quantile representation (2.4a),
+with the inverse beta function evaluated numerically.</li>
+<li><strong>Probability integral transform.</strong> The fitted values
+<span class="math inline">\(F(x_i;\hat{\boldsymbol\theta})\)</span>
+should resemble a Uniform<span class="math inline">\((0,1)\)</span>
+sample, but they are not exactly i.i.d. Uniform in finite samples
+because the same data were used to estimate <span class="math inline">\(\hat{\boldsymbol\theta}\)</span>. Formal
+calibration should therefore use a parametric bootstrap when
+needed.</li>
+<li><strong>Information conditioning.</strong> Examine the eigenvalues
+or a suitably scaled condition number of <span class="math inline">\(\mathcal J(\hat{\boldsymbol\theta})\)</span>. The
+raw condition number is parameterization-dependent, so fixed thresholds
+should be treated only as numerical warnings rather than universal
+inferential rules.</li>
+<li><strong>Positive definiteness.</strong> At a strict regular local
+maximum, the Hessian of <span class="math inline">\(\ell\)</span> is
+negative definite and the observed information is positive definite.
+Failure of this property can indicate a saddle point, a
+flat/non-identifiable direction, a boundary optimum, or numerical
+error.</li>
+<li><strong>Profile likelihood.</strong> For a five-parameter model,
+profile plots are especially useful for detecting ridges involving <span class="math inline">\((\alpha,\lambda)\)</span>, <span class="math inline">\((\gamma,\lambda)\)</span>, or <span class="math inline">\((\beta,\delta)\)</span> near the non-identifiable
+manifolds in Proposition 2.1.</li>
 </ol>
 </div>
 <div id="discussion" class="section level3">
@@ -1365,18 +1571,21 @@ should be strictly positive for valid standard error estimates.</li>
 Generalized Kumaraswamy (GKw) family, including:</p>
 <ol style="list-style-type: decimal">
 <li><p><strong>Hierarchical embedding.</strong><br />
-The GKw family neatly contains Beta, McDonald, Kumaraswamy,
-exponentiated Kumaraswamy, Beta–Kumaraswamy and Kumaraswamy–Kumaraswamy
-distributions as submodels, with explicit parameter mappings.</p></li>
+The GKw family contains the McDonald, Kumaraswamy, exponentiated
+Kumaraswamy, Beta–Kumaraswamy and Kumaraswamy–Kumaraswamy distributions
+as submodels, together with the shifted Beta subfamily described in
+Theorem 2.8, with explicit parameter mappings.</p></li>
 <li><p><strong>Likelihood theory.</strong><br />
 We derived explicit expressions for the log-likelihood, the score vector
 and the full observed information matrix in terms of the cascade
 transformations <span class="math inline">\(v,w,z\)</span>, in a form
 suitable for stable numerical implementation.</p></li>
-<li><p><strong>Asymptotic properties.</strong><br />
-Under standard regularity conditions, the MLEs are consistent and
-asymptotically normal, with variance–covariance matrix obtained from the
-inverse observed information.</p></li>
+<li><p><strong>Likelihood asymptotics and
+identifiability.</strong><br />
+Standard MLE asymptotics hold only on regular identifiable regions with
+nonsingular Fisher information. The full five-parameter representation
+is non-identifiable on important manifolds including <span class="math inline">\(\delta=0\)</span>, <span class="math inline">\(\beta=1\)</span>, and <span class="math inline">\(\gamma=\lambda=1\)</span>, so boundary and reduced
+models must be handled separately.</p></li>
 <li><p><strong>Computational considerations.</strong><br />
 Log-scale evaluations and carefully structured derivatives provide
 numerical stability and efficiency. In our C++ implementation via
@@ -1384,20 +1593,30 @@ RcppArmadillo, analytical gradients and Hessians yield substantial
 speedups over finite-difference approximations, together with better
 numerical accuracy.</p></li>
 </ol>
-<p>Open problems and possible extensions include:</p>
+<p>Natural extensions and computational developments include:</p>
 <ul>
-<li>Closed-form expressions for moments of the full GKw distribution
-(currently only some sub-families, such as Kw and Beta, admit simple
-formulas).</li>
-<li>Analytic inversion of the BKw CDF (solving <span class="math inline">\(I_y(\gamma,\delta+1)=p\)</span> for <span class="math inline">\(y\)</span>, followed by inversion of the
-cascade).</li>
+<li>Compact and numerically efficient representations for the full GKw
+moments. Carrasco et al. (2010) provide series representations; simple
+elementary closed forms are generally unavailable.</li>
+<li>Higher-order likelihood corrections and profile-likelihood inference
+in weakly identified regions.</li>
+<li>Boundary-aware likelihood-ratio calibration and parametric-bootstrap
+procedures for comparisons such as KKw versus Kw.</li>
 <li>Multivariate generalizations using copulas constructed from GKw
 marginals.</li>
-<li>Fully Bayesian treatments with suitable priors on <span class="math inline">\((\alpha,\beta,\gamma,\delta,\lambda)\)</span>.</li>
+<li>Fully Bayesian treatments with priors and parameterizations designed
+to avoid or regularize non-identifiable directions.</li>
 </ul>
-<p>The <code>gkwdist</code> R package implements all the theoretical
-results described in this vignette and provides a practical toolkit for
-likelihood-based inference in bounded continuous data models.</p>
+<p>The full GKw quantile is already available computationally through
+the inverse regularized beta function followed by the explicit cascade
+inversion in (2.4a); no elementary inverse-beta formula is required for
+simulation or Q-Q diagnostics.</p>
+<p>The <code>gkwdist</code> R package provides the distributional and
+likelihood-computation routines underlying this vignette. The
+identifiability, singular-null and numerical-stability qualifications
+established here should be treated as part of the mathematical contract
+for interpreting those routines and for future package-level inference
+helpers.</p>
 <hr />
 </div>
 </div>
@@ -1406,6 +1625,9 @@ likelihood-based inference in bounded continuous data models.</p>
 <p>Carrasco, J. M. F., Ferrari, S. L. P., &amp; Cordeiro, G. M. (2010).
 <strong>A new generalized Kumaraswamy distribution.</strong>
 <em>arXiv:1004.0911</em>. <a href="https://arxiv.org/abs/1004.0911">arxiv.org/abs/1004.0911</a></p>
+<p>Carrasco, J. M. F. and Cordeiro, G. M. (2017). An extension of the
+Kumaraswamy distribution. <em>International Journal of Statistics and
+Probability</em>, <strong>6</strong>(3), 61. <a href="doi:10.5539/ijsp.v6n3p61" class="uri">doi:10.5539/ijsp.v6n3p61</a></p>
 <p>Casella, G. and Berger, R. L. (2002). <em>Statistical Inference</em>,
 2nd ed. Duxbury Press, Pacific Grove, CA.</p>
 <p>Cordeiro, G. M. and de Castro, M. (2011). A new family of generalized
@@ -1427,6 +1649,10 @@ Estimation</em>, 2nd ed. Springer, New York.</p>
 <a href="https://CRAN.R-project.org/package=Rmpfr" class="uri">https://CRAN.R-project.org/package=Rmpfr</a>.</p>
 <p>Nocedal, J. and Wright, S. J. (2006). <em>Numerical
 Optimization</em>, 2nd ed. Springer, New York.</p>
+<p>Self, S. G. and Liang, K.-Y. (1987). Asymptotic properties of maximum
+likelihood estimators and likelihood ratio tests under nonstandard
+conditions. <em>Journal of the American Statistical Association</em>,
+<strong>82</strong>(398), 605–610. <a href="doi:10.1080/01621459.1987.10478472" class="uri">doi:10.1080/01621459.1987.10478472</a></p>
 <p>van der Vaart, A. W. (1998). <em>Asymptotic Statistics</em>.
 Cambridge University Press, Cambridge.</p>
 <hr />
